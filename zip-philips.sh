@@ -18,12 +18,6 @@ function makeref() {
   -pix_fmt yuv420p -r 25 -f mp4 "$output.mp4"
 }
 
-# if [[ ! "$debug" = false ]] ; then
-#   echo ""
-#   echo "Debug mode on. Checking for folders to zip, please wait..."
-#   echo ""
-# fi
-
 if [[ -z "$zipdir" ]] && [[ -z "$dest" ]]; then
   echo "Variables not set. Please input"
   echo "1: Input folder"

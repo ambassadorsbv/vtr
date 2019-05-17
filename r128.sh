@@ -11,17 +11,3 @@ for f in $flist ; do
     IFS=$'\n' basename "$f" && ffprobe -f lavfi amovie="$f",ebur128=metadata=1 -show_frames 2>&1 | grep "I:";
   fi;
 done;
-
-# if [[ -f "$1" ]]; then
-#   filelist="$1";
-# elif [[ -d "$1" ]]; then
-#   IFS='\n'
-#   filelist=$(ls "$1"/*.{wav,mxf,aif,aiff,mov,mp4,mkv,avi,flv,webm});
-# fi;
-#
-# for f in $filelist; do
-#   if [[ -f "$f" ]]; then
-#   echo "$f"
-#   ffprobe -f lavfi amovie="$f",ebur128=metadata=1 -show_frames 2>&1 | grep "I:";
-#   fi;
-# done
