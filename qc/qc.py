@@ -3,12 +3,14 @@
 import sys
 import subprocess as sp
 import json
+import os
 
 if len(sys.argv) < 1:
     print("Missing input. Please input a file path.")
     exit(1)
 
 inFile = sys.argv[1]
+inFileName = os.path.basename(inFile)
 
 
 def probe_infile(inFile):
@@ -62,16 +64,20 @@ def thumbmaker(inFile, inFile_dur):
     """Create the thumbnail output."""
     thumb_ss = int(float(inFile_dur) * 0.1)
     thumb_tc = int(float(inFile_dur) * 0.5 - thumb_ss)
-    ff_opts = "select=not(mod(t\\,{timebase})),scale=240:-2,tile=3x1".format(
+    ff_opts = "select=not(mod(t\\,{timebase})),scale=150:-2,tile=3x1".format(
         timebase=thumb_tc
         )
+    outFileName = os.path.join(
+                  "./output/",
+                  "{}_thumb.png".format(os.path.splitext(inFileName)[0])
+    )
     ff_thumb = [
         '/usr/bin/env', 'ffmpeg', '-ss', str(thumb_ss),
         '-hide_banner', '-loglevel', 'error',
         '-y', '-i', inFile,
         '-frames', '1', '-vsync', '0',
         '-vf', ff_opts,
-        'thumb.png'
+        outFileName
     ]
     sp.run(ff_thumb)
 # End thumbmaker.
