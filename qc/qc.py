@@ -11,15 +11,15 @@ if len(sys.argv) < 1:
 inFile = sys.argv[1]
 
 
-def vidlen(inFile):
-    """Read the video and determine the duration."""
+def probe_infile(inFile):
+    """Probe the input file to get the relevant meta data."""
     ff_header = [
         '/usr/bin/env', 'ffprobe',
         '-v', 'error',
         '-hide_banner', '-i',
     ]
     ff_opts = [
-        '-show_entries', 'format=duration',
+        '-show_format', '-show_streams',
         '-of', 'json',
         '-v', 'quiet',
     ]
@@ -28,23 +28,42 @@ def vidlen(inFile):
     ff_command.append(inFile)
     ff_command.extend(ff_opts)
     process = sp.run(ff_command, capture_output=True)
-    data = json.loads(process.stdout)["format"]
-    dur = data["duration"]
+    probe_data = json.loads(process.stdout)
+    return probe_data
+
+
+def vidlen(probe_data):
+    """Read the json log and determine the duration."""
+    formats = probe_data["format"]
+    dur = formats.get("duration")
     return dur
 # End reading duration.
 
 
-def thumbmaker(inFile, vidlen_out):
+def fileinfo(probe_data):
+    """Read the json log and output file information."""
+    for stream in probe_data["streams"]:
+        width = stream.get("width")
+        height = stream.get("height")
+        if width and height:
+            vidwidth = width
+            vidheight = height
+    info_out = "Video width = {vidwidth}, Video height = {vidheight}".format(
+                        vidwidth=vidwidth,
+                        vidheight=vidheight
+                    )
+    print(info_out)
+
+
+def thumbmaker(inFile, inFile_dur):
     """Create the thumbnail output."""
-    thumb_start = int(float(vidlen_out) / 10)
-    thumb_interval = int(float(vidlen_out) / 3)
-    ff_opts = [
-        'select=not(mod(t\,',
-        str(thumb_interval),
-        ')),scale=320:-2,tile=3x1']
-    ff_opts = "".join(ff_opts)
+    thumb_ss = int(float(inFile_dur) * 0.1)
+    thumb_tc = int(float(inFile_dur) * 0.5 - thumb_ss)
+    ff_opts = "select=not(mod(t\\,{timebase})),scale=240:-2,tile=3x1".format(
+        timebase=thumb_tc
+        )
     ff_thumb = [
-        '/usr/bin/env', 'ffmpeg', '-ss', str(thumb_start),
+        '/usr/bin/env', 'ffmpeg', '-ss', str(thumb_ss),
         '-hide_banner', '-loglevel', 'error',
         '-y', '-i', inFile,
         '-frames', '1', '-vsync', '0',
@@ -56,8 +75,11 @@ def thumbmaker(inFile, vidlen_out):
 
 def run_all(functionInput):
     """Run all the defined functions as a single test."""
-    vidlen_out = vidlen(functionInput)
-    thumbmaker(functionInput, vidlen_out)
+    probe_data = probe_infile(functionInput)
+    fileinfo(probe_data)
+    inFile_dur = vidlen(probe_data)
+    thumbmaker(functionInput, inFile_dur)
+    # print(inFile_dur)
 
 
 if __name__ == "__main__":
