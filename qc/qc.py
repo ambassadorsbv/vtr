@@ -30,6 +30,7 @@ def probe_infile(inFile):
     process = sp.run(ff_command, capture_output=True)
     probe_data = json.loads(process.stdout)
     return probe_data
+# End probing the input video.
 
 
 def vidlen(probe_data):
@@ -43,16 +44,18 @@ def vidlen(probe_data):
 def fileinfo(probe_data):
     """Read the json log and output file information."""
     for stream in probe_data["streams"]:
-        width = stream.get("width")
-        height = stream.get("height")
-        if width and height:
-            vidwidth = width
-            vidheight = height
-    info_out = "Video width = {vidwidth}, Video height = {vidheight}".format(
-                        vidwidth=vidwidth,
-                        vidheight=vidheight
-                    )
-    print(info_out)
+        vidcheck = stream.get("codec_type")
+        if vidcheck == "video":
+            width = stream.get("width")
+            height = stream.get("height")
+            ratio = stream.get("display_aspect_ratio")
+            order = stream.get("field_order")
+            fps = stream.get("r_frame_rate")
+            codec = stream.get("codec_name")
+            codec_long = stream.get("codec_long_name")
+    fileinfo_out = [width, height, ratio, order, fps, codec, codec_long]
+    return fileinfo_out
+# End fileinfo.
 
 
 def thumbmaker(inFile, inFile_dur):
@@ -71,6 +74,7 @@ def thumbmaker(inFile, inFile_dur):
         'thumb.png'
     ]
     sp.run(ff_thumb)
+# End thumbmaker.
 
 
 def run_all(functionInput):
@@ -79,7 +83,7 @@ def run_all(functionInput):
     fileinfo(probe_data)
     inFile_dur = vidlen(probe_data)
     thumbmaker(functionInput, inFile_dur)
-    # print(inFile_dur)
+# End run all.
 
 
 if __name__ == "__main__":
