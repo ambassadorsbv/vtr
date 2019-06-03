@@ -12,6 +12,16 @@ if len(sys.argv) < 1:
 inFile = sys.argv[1]
 inFileName = os.path.basename(inFile)
 
+outThumb = os.path.join(
+              "./output/",
+              "{}_thumb.png".format(os.path.splitext(inFileName)[0])
+)
+
+outLog = os.path.join(
+              "./output/",
+              "{}.log".format(os.path.splitext(inFileName)[0])
+)
+
 
 def probe_infile(inFile):
     """Probe the input file to get the relevant meta data."""
@@ -60,6 +70,23 @@ def fileinfo(probe_data):
 # End fileinfo.
 
 
+def loudness(inFile):
+    """Probe the input file and read the audio stream loudness."""
+    ff_opts = "amovie='{inFile}',ebur128=metadata=1".format(inFile=inFile)
+    ff_command = ["/usr/bin/env", "ffprobe",
+                  "-f", "lavfi", ff_opts,
+                  "-show_frames", "-of", "json", "-v", "quiet"
+    ]
+    process = sp.run(ff_command, capture_output=True)
+    probe_data = json.loads(process.stdout)
+    for frame in probe_data['frames']:
+        tags = frame["tags"]
+        if tags:
+            loudness = tags.get("lavfi.r128.I")
+    return loudness
+# End loudness.
+
+
 def thumbmaker(inFile, inFile_dur):
     """Create the thumbnail output."""
     thumb_ss = int(float(inFile_dur) * 0.1)
@@ -67,31 +94,37 @@ def thumbmaker(inFile, inFile_dur):
     ff_opts = "select=not(mod(t\\,{timebase})),scale=150:-2,tile=3x1".format(
         timebase=thumb_tc
         )
-    outFileName = os.path.join(
-                  "./output/",
-                  "{}_thumb.png".format(os.path.splitext(inFileName)[0])
-    )
     ff_thumb = [
         '/usr/bin/env', 'ffmpeg', '-ss', str(thumb_ss),
         '-hide_banner', '-loglevel', 'error',
         '-y', '-i', inFile,
         '-frames', '1', '-vsync', '0',
         '-vf', ff_opts,
-        outFileName
+        outThumb
     ]
     sp.run(ff_thumb)
 # End thumbmaker.
 
 
-def run_all(functionInput):
-    """Run all the defined functions as a single test."""
-    probe_data = probe_infile(functionInput)
-    fileinfo(probe_data)
-    inFile_dur = vidlen(probe_data)
-    thumbmaker(functionInput, inFile_dur)
-# End run all.
+# def run_all(functionInput):
+#     """Run all the defined functions as a single test."""
+#     probe_data = probe_infile(functionInput)
+#     fileinfo(probe_data)
+#     inFile_dur = vidlen(probe_data)
+#     thumbmaker(functionInput, inFile_dur)
+# # End run all.
 
 
 if __name__ == "__main__":
 
-    run_all(inFile)
+s    probe_data = probe_infile(inFile)
+    loudness = loudness(inFile)
+    fileinfo = fileinfo(probe_data)
+
+    with open(outLog, "a") as logfile:
+        for line in fileinfo:
+            print(line, file=logfile)
+        print(loudness, file=logfile)
+
+    inFile_dur = vidlen(probe_data)
+    thumbmaker(inFile, inFile_dur)
