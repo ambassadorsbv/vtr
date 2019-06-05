@@ -13,12 +13,10 @@ inFile = sys.argv[1]
 inFileName = os.path.basename(inFile)
 
 outThumb = os.path.join(
-              "./output/",
               "{}_thumb.png".format(os.path.splitext(inFileName)[0])
 )
 
 outLog = os.path.join(
-              "./output/",
               "{}.log".format(os.path.splitext(inFileName)[0])
 )
 
@@ -41,6 +39,7 @@ def probe_infile(inFile):
     ff_command.extend(ff_opts)
     process = sp.run(ff_command, capture_output=True)
     probe_data = json.loads(process.stdout)
+    print(str(probe_data))
     return probe_data
 # End probing the input video.
 
@@ -70,19 +69,21 @@ def fileinfo(probe_data):
 # End fileinfo.
 
 
-def loudness(inFile):
+def loudness(inFile, probe_data):
     """Probe the input file and read the audio stream loudness."""
-    ff_opts = "amovie='{inFile}',ebur128=metadata=1".format(inFile=inFile)
-    ff_command = ["/usr/bin/env", "ffprobe",
-                  "-f", "lavfi", ff_opts,
-                  "-show_frames", "-of", "json", "-v", "quiet"
-    ]
-    process = sp.run(ff_command, capture_output=True)
-    probe_data = json.loads(process.stdout)
-    for frame in probe_data['frames']:
-        tags = frame["tags"]
-        if tags:
-            loudness = tags.get("lavfi.r128.I")
+    for stream in probe_data["streams"]:
+        if stream.get("codec_type") == "audio":
+            ff_opts = "amovie='{inFile}',ebur128=metadata=1".format(inFile=inFile)
+            ff_command = ["/usr/bin/env", "ffprobe",
+                          "-f", "lavfi", ff_opts,
+                          "-show_frames", "-of", "json", "-v", "quiet"
+            ]
+            process = sp.run(ff_command, capture_output=True)
+            r128_data = json.loads(process.stdout)
+            for frame in r128_data['frames']:
+                tags = frame["tags"]
+                if tags:
+                    loudness = tags.get("lavfi.r128.I")
     return loudness
 # End loudness.
 
@@ -117,8 +118,8 @@ def thumbmaker(inFile, inFile_dur):
 
 if __name__ == "__main__":
 
-s    probe_data = probe_infile(inFile)
-    loudness = loudness(inFile)
+    probe_data = probe_infile(inFile)
+    loudness = loudness(inFile, probe_data)
     fileinfo = fileinfo(probe_data)
 
     with open(outLog, "a") as logfile:
