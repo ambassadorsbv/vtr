@@ -15,6 +15,7 @@ function makezip() {
 function makeref() {
   ffmpeg -hide_banner -loglevel panic -pattern_type glob \
   -y -i "$zipfolder/*.$sstring" -c:v libx264 -b:v 5000k \
+  -vf scale="-2:1080" \
   -pix_fmt yuv420p -r 25 -f mp4 "$output.mp4"
 }
 
