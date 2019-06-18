@@ -14,10 +14,13 @@ from reportlab.lib.colors import HexColor
 
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-GOTHAM_FONTS = [ "{base}/{book}".format(base=BASE_DIR, book='video/qc/fonts/Gotham-Book.ttf'),
-                 "{base}/{bold}".format(base=BASE_DIR, bold='video/qc/fonts/Gotham-Bold.ttf'),
-                 "{base}/{med}".format(base=BASE_DIR, med='video/qc/fonts/Gotham-Medium.ttf'),
+
+__location__ = os.path.realpath(
+               os.path.join(os.getcwd(), os.path.dirname(__file__)))
+
+GOTHAM_FONTS = [ "{base}/{book}".format(base=__location__, book='qc/fonts/Gotham-Book.ttf'),
+                 "{base}/{bold}".format(base=__location__, bold='qc/fonts/Gotham-Bold.ttf'),
+                 "{base}/{med}".format(base=__location__, med='qc/fonts/Gotham-Medium.ttf'),
  ]
 pdfmetrics.registerFont(TTFont('GothamBook', GOTHAM_FONTS[0]))
 pdfmetrics.registerFont(TTFont('GothamBold', GOTHAM_FONTS[1]))
@@ -27,8 +30,6 @@ if len(sys.argv) < 1:
     print("Missing input. Please input a file path.")
     exit(1)
 
-__location__ = os.path.realpath(
-    os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 inFile = sys.argv[1]
 inFileDir = os.path.dirname(inFile)
