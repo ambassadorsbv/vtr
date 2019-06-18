@@ -5,6 +5,7 @@ import subprocess as sp
 import json
 import os
 import time
+import reportlab
 
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
@@ -13,10 +14,14 @@ from reportlab.lib.colors import HexColor
 
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-pdfmetrics.registerFont(TTFont('GothamBold', 'Gotham-Bold.ttf'))
-pdfmetrics.registerFont(TTFont('GothamBook', 'Gotham-Book.ttf'))
-pdfmetrics.registerFont(TTFont('GothamMed', 'Gotham-Medium.ttf'))
-
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+GOTHAM_FONTS = [ "{base}/{book}".format(base=BASE_DIR, book='video/qc/fonts/Gotham-Book.ttf'),
+                 "{base}/{bold}".format(base=BASE_DIR, bold='video/qc/fonts/Gotham-Bold.ttf'),
+                 "{base}/{med}".format(base=BASE_DIR, med='video/qc/fonts/Gotham-Medium.ttf'),
+ ]
+pdfmetrics.registerFont(TTFont('GothamBook', GOTHAM_FONTS[0]))
+pdfmetrics.registerFont(TTFont('GothamBold', GOTHAM_FONTS[1]))
+pdfmetrics.registerFont(TTFont('GothamMed', GOTHAM_FONTS[2]))
 
 if len(sys.argv) < 1:
     print("Missing input. Please input a file path.")
