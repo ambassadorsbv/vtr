@@ -254,7 +254,7 @@ def pdfmaker(probe_data, loudness):
     c.drawString(x+130, y_fileDetails-33, "{val}".format(
                 val=inFileName[-5:]))
     c.drawString(x+10, y_fileDetails-46, "Date Created:")
-    c.drawString(x+130, y_fileDetails-46, "{val}".format(
+    c.drawString(x+130, y_fileDetails-46, "{val} UTC".format(
                  val=fileDate))
     c.drawString(x+10, y_fileDetails-59, "File Size:")
     c.drawString(x+130, y_fileDetails-59, "{val} MB".format(
