@@ -36,7 +36,6 @@ probe_arguments = [
 # Setting the bitrate and output format
 # for selected version of video
 if outformat in {'mov', 'master', 'apr422', '422'}:
-    outformat = 'mov'
     outext = 'mov'
     minrate = ''
     maxrate = ''
@@ -83,7 +82,8 @@ ff_master = [
 
 ff_422 = [
     '-c:v', 'prores_ks',
-    '-profile:v', '5',
+    '-profile:v', '3',
+    '-pix_fmt', 'yuv422p10le',
     '-c:a', 'copy',
     '-f', 'mov',
 ]
@@ -113,8 +113,7 @@ ff_ref = [
     outname
 ]
 
-if __name__ == "__main__":
-
+def getVideoDuration(vin):
     vprobe = []
     vprobe.extend(probe_header)
     vprobe.extend(['-i', vin])
@@ -123,7 +122,9 @@ if __name__ == "__main__":
         vprobe
     )
     vint = vout.decode().strip()
+    return vint
 
+def getAudioDuration(ain):
     aprobe = []
     aprobe.extend(probe_header)
     aprobe.extend(['-i', ain])
@@ -132,11 +133,14 @@ if __name__ == "__main__":
         aprobe
     )
     aint = aout.decode().strip()
+    return aint
 
+
+def buildFFmpegCommand():
     ff_command = []
     ff_command.extend(ff_header)
 
-    if outformat == "mov":
+    if outformat in {"mov", "master"}:
         ff_command.extend(ff_master)
         ff_command.extend(ff_color)
     elif outformat in {'apr422', '422'}:
@@ -144,11 +148,21 @@ if __name__ == "__main__":
         ff_command.extend(ff_color)
     else:
         ff_command.extend(ff_ref)
+    
+    return ff_command
 
     # test prints
     # print('audioint', {"audioint": aint})
     # print('vidint', vint)
     # print(" ".join(ff_command))
+
+if __name__ == "__main__":
+
+    vint = getVideoDuration(vin)
+    aint = getAudioDuration(ain)
+    ff_command = buildFFmpegCommand()
+
+    print(ff_command)
 
     if vint == aint:
 
