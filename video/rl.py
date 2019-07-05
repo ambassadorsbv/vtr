@@ -151,18 +151,11 @@ def buildFFmpegCommand():
     
     return ff_command
 
-    # test prints
-    # print('audioint', {"audioint": aint})
-    # print('vidint', vint)
-    # print(" ".join(ff_command))
-
 if __name__ == "__main__":
 
     vint = getVideoDuration(vin)
     aint = getAudioDuration(ain)
     ff_command = buildFFmpegCommand()
-
-    print(ff_command)
 
     if vint == aint:
 
