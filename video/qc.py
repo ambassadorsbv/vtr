@@ -37,20 +37,23 @@ inFileName = os.path.splitext(os.path.basename(inFile))[0]
 
 outThumb = os.path.join(
               "{inDir}/{inFileName}_thumb.png".format(
-                  inDir=inFileDir,
-                  inFileName=inFileName)
+              inDir=inFileDir,
+              inFileName=inFileName
+              )
 )
 
 outLog = os.path.join(
               "{inDir}/{inFileName}.log".format(
-                  inDir=inFileDir,
-                  inFileName=inFileName)
+              inDir=inFileDir,
+              inFileName=inFileName
+              )
 )
 
 outPDF = os.path.join(
               "{inDir}/{inFileName}.pdf".format(
-                  inDir=inFileDir,
-                  inFileName=inFileName)
+              inDir=inFileDir,
+              inFileName=inFileName
+              )
 )
 
 
@@ -172,7 +175,7 @@ def thumbmaker(inFile, inFile_dur):
     ff_thumb = [
         '/usr/bin/env', 'ffmpeg', '-ss', str(thumb_ss),
         '-hide_banner', '-loglevel', 'error',
-        '-y', '-i', inFile,
+        '-y', '-i', inFile,q
         '-frames', '1', '-vsync', '0',
         '-vf', ff_opts,
         outThumb
@@ -222,6 +225,8 @@ def pdfmaker(probe_data, loudness):
     fileSampleRate = str(fileinfo["SampleRate"])
     fileLoudness = str(loudness[0])
     fileR128 = str(loudness[1])
+    if float(loudness[0]) < -50:
+        fileAChannels = "Mute" 
     fileDate = str(fileinfo["Date"])
 
     # Draw a colored box to set background color.
@@ -316,17 +321,18 @@ def pdfmaker(probe_data, loudness):
     c.drawString(x+10, y_audDetails-20, "Audio Channels:")
     c.drawString(x+130, y_audDetails-20, "{val}".format(
                  val=fileAChannels))
-    c.drawString(x+10, y_audDetails-33, "Audio Codec:")
-    c.drawString(x+130, y_audDetails-33, "{val}".format(
+    if fileAChannels is not "Mute":
+        c.drawString(x+10, y_audDetails-33, "Audio Codec:")
+        c.drawString(x+130, y_audDetails-33, "{val}".format(
                  val=fileACodecLong))
-    c.drawString(x+10, y_audDetails-46, "Sample Rate:")
-    c.drawString(x+130, y_audDetails-46, "{val} kHz".format(
+        c.drawString(x+10, y_audDetails-46, "Sample Rate:")
+        c.drawString(x+130, y_audDetails-46, "{val} kHz".format(
                  val=fileSampleRate))
-    c.drawString(x+10, y_audDetails-59, "Overall Loudness:")
-    c.drawString(x+130, y_audDetails-59, "{val} LUFS".format(
+        c.drawString(x+10, y_audDetails-59, "Overall Loudness:")
+        c.drawString(x+130, y_audDetails-59, "{val} LUFS".format(
                  val=fileLoudness))
-    c.drawString(x+10, y_audDetails-72, "R128 compliant:")
-    c.drawString(x+130, y_audDetails-72, "{val}".format(
+        c.drawString(x+10, y_audDetails-72, "R128 compliant:")
+        c.drawString(x+130, y_audDetails-72, "{val}".format(
                  val=fileR128))
     # End audio details.
 
