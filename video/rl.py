@@ -35,7 +35,7 @@ probe_arguments = [
 
 # Setting the bitrate and output format
 # for selected version of video
-if outformat == 'mov' or outformat == 'master' or outformat == 'apr422':
+if outformat in {'mov', 'master', 'apr422', '422'}:
     outformat = 'mov'
     outext = 'mov'
     minrate = ''
@@ -78,14 +78,12 @@ ff_header = [
 
 ff_master = [
     '-c', 'copy',
-    '-ac', '2',
     '-f', 'mov',
 ]
 
 ff_422 = [
     '-c:v', 'prores_ks',
     '-profile:v', '5',
-    '-ac', '2',
     '-c:a', 'copy',
     '-f', 'mov',
 ]
@@ -108,6 +106,7 @@ ff_ref = [
     '-profile:v', 'high',
     '-level', '41',
     '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2',
+    '-ac', '2',
     '-c:a', 'aac',
     '-b:a', '320k',
     '-f', 'mp4',
@@ -140,7 +139,7 @@ if __name__ == "__main__":
     if outformat == "mov":
         ff_command.extend(ff_master)
         ff_command.extend(ff_color)
-    elif outformat == "apr422":
+    elif outformat in {'apr422', '422'}:
         ff_command.extend(ff_422)
         ff_command.extend(ff_color)
     else:
