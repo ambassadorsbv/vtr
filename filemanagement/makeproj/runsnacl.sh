@@ -4,7 +4,7 @@ runsnacl() { # User the permissions lists to set the right permissions for folde
   echo "Setting permissions on subfolders."
              /usr/local/bin/snacl -ER "$projectpath"/* < "$permissionsdir"/subfolder_permissions.snacl # sets permissions for subfolders inside a project's division folders
   echo "Setting permissions vfx specific folders."
-             /usr/local/bin/snacl -ER "$projectpath"/vfx/{_RENDERS,shotgun} < "$permissionsdir"/producer_permissions.snacl # removes write permissions for Producers in VFX folders
+             /usr/local/bin/snacl -ER "$projectpath"/vfx/* < "$permissionsdir"/producer_permissions.snacl # removes write permissions for Producers in VFX folders
   echo "Setting permissions on project division folders."
              /usr/local/bin/snacl -E "$projectpath"/* < "$permissionsdir"/folder_permissions.snacl # sets division folders permissions in the Project
   echo "Setting permissions on toplevel project folder."
