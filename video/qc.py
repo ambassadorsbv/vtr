@@ -175,7 +175,7 @@ def thumbmaker(inFile, inFile_dur):
     ff_thumb = [
         '/usr/bin/env', 'ffmpeg', '-ss', str(thumb_ss),
         '-hide_banner', '-loglevel', 'error',
-        '-y', '-i', inFile,q
+        '-y', '-i', inFile,
         '-frames', '1', '-vsync', '0',
         '-vf', ff_opts,
         outThumb
