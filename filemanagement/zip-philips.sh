@@ -38,24 +38,24 @@ else
     output="$dest"/"$basedirdest"/"$basedirdest"_360_"$basedest"
     outfilename=$(basename "$output")
 
-# In debug mode, we'll list all the variables and then exit
-    if [[ ! "$debug" = false ]] ; then
-      echo "Running in debug mode. Input argument 'false' to run live mode."
-      echo " "
-      echo "Variables set to:"
-      echo "basedest = $basedest"
-      echo "dirdest = $dirdest"
-      echo "basedirdest = $basedirdest"
-      echo "full output path will be $output.zip"
-      echo " "
-      echo "Will archive $count files in $zipfolder that contain the string $sstring"
-      echo "And create a reference file at $output.mp4"
-      exit 1
-    else
-
   # We only want to run this whole part if there's more than one
   # image in the source folder. So, let's wrap this in a test clause:
-      if [[ "$count" -gt 1 ]]; then
+    if [[ "$count" -gt 1 ]]; then
+
+  # In debug mode, we'll list all the variables and then exit
+      if [[ ! "$debug" = false ]] ; then
+        echo "Running in debug mode. Input argument 'false' to run live mode."
+        echo " "
+        # echo "Variables set to:"
+        # echo "basedest = $basedest"
+        # echo "dirdest = $dirdest"
+        # echo "basedirdest = $basedirdest"
+        # echo " "
+        echo "Will archive $count files in $zipfolder that contain the string $sstring."
+        echo " "
+        echo "The output path will be $output.zip"
+        echo "Will create a reference file at $output.mp4"
+      else
 
   # If we're running live mode, this is the part that creates the zip.
         if [[ -f $output.zip ]]; then
