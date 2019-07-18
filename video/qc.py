@@ -5,7 +5,6 @@ import subprocess as sp
 import json
 import os
 import time
-import reportlab
 
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
@@ -18,10 +17,13 @@ from reportlab.pdfbase.ttfonts import TTFont
 __location__ = os.path.realpath(
                os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
-GOTHAM_FONTS = [ "{base}/{book}".format(base=__location__, book='qc/fonts/Gotham-Book.ttf'),
-                 "{base}/{bold}".format(base=__location__, bold='qc/fonts/Gotham-Bold.ttf'),
-                 "{base}/{med}".format(base=__location__, med='qc/fonts/Gotham-Medium.ttf'),
- ]
+GOTHAM_FONTS = ["{base}/{book}".format(base=__location__,
+                                       book='qc/fonts/Gotham-Book.ttf'),
+                "{base}/{bold}".format(base=__location__,
+                                       bold='qc/fonts/Gotham-Bold.ttf'),
+                "{base}/{med}".format(base=__location__,
+                                      med='qc/fonts/Gotham-Medium.ttf'),
+]
 pdfmetrics.registerFont(TTFont('GothamBook', GOTHAM_FONTS[0]))
 pdfmetrics.registerFont(TTFont('GothamBold', GOTHAM_FONTS[1]))
 pdfmetrics.registerFont(TTFont('GothamMed', GOTHAM_FONTS[2]))
@@ -33,26 +35,44 @@ if len(sys.argv) < 1:
 
 inFile = sys.argv[1]
 inFileDir = os.path.dirname(inFile)
-inFileName = os.path.splitext(os.path.basename(inFile))[0]
+inFileBase = os.path.splitext(os.path.basename(inFile))[0]
+
+
+def filenamecheck(inFileBase):
+    """Check if the file naming convention is one of Booking's, or one of Ambassadors'."""
+    inFileSplit = inFileBase.split('_')
+    if inFileSplit[0] == "BDC":
+        inFileName = '_'.join(inFileSplit[0:8])
+        inFileMasterNr = inFileSplit[9]
+    else:
+        inFileName = inFileBase[:-6]
+        inFileMasterNr = inFileBase[-5:]
+        print(inFileName, inFileMasterNr)
+    return inFileName, inFileMasterNr
+
+
+inFileName = filenamecheck(inFileBase)[0]
+inFileMasterNr = filenamecheck(inFileBase)[1]
+
 
 outThumb = os.path.join(
-              "{inDir}/{inFileName}_thumb.png".format(
-              inDir=inFileDir,
-              inFileName=inFileName
+              "{inDir}/{inFileBase}_thumb.png".format(
+                  inDir=inFileDir,
+                  inFileBase=inFileBase
               )
 )
 
 outLog = os.path.join(
-              "{inDir}/{inFileName}.log".format(
-              inDir=inFileDir,
-              inFileName=inFileName
+              "{inDir}/{inFileBase}.log".format(
+                  inDir=inFileDir,
+                  inFileBase=inFileBase
               )
 )
 
 outPDF = os.path.join(
-              "{inDir}/{inFileName}.pdf".format(
-              inDir=inFileDir,
-              inFileName=inFileName
+              "{inDir}/{inFileBase}.pdf".format(
+                  inDir=inFileDir,
+                  inFileBase=inFileBase
               )
 )
 
@@ -112,6 +132,11 @@ def fileinfo(probe_data):
             acodec = stream.get("codec_name")
             acodec_long = stream.get("codec_long_name")
             samplerate = stream.get("sample_rate")
+        else:
+            achannels = stream.get("N/A")
+            acodec = stream.get("N/A")
+            acodec_long = stream.get("N/A")
+            samplerate = stream.get("N/A")
     fileSize = (os.path.getsize(inFile) / 1048576)
     fileSize = "{0:.2f}".format(fileSize)
     date = time.gmtime(os.path.getctime(inFile))
@@ -141,6 +166,8 @@ def fileinfo(probe_data):
 
 def loudness(inFile, probe_data):
     """Probe the input file and read the audio stream loudness."""
+    loudness = "-999"
+    R128check = "No"
     for stream in probe_data["streams"]:
         if stream.get("codec_type") == "audio":
             ff_opts = "amovie='{inFile}',ebur128=metadata=1".format(
@@ -158,9 +185,8 @@ def loudness(inFile, probe_data):
                 if tags:
                     loudness = tags.get("lavfi.r128.I")
             print("Loudness check complete.")
-    R128check = "No"
-    if -23.5 < float(loudness) < -22.5:
-        R128check = "Yes"
+            if -23.5 < float(loudness) < -22.5:
+                R128check = "Yes"
     return loudness, R128check
 # End loudness.
 
@@ -204,7 +230,7 @@ def pdfmaker(probe_data, loudness):
     c = canvas.Canvas(outPDF, pagesize=A4, bottomup=1, pageCompression=0)
     cWidth, cHeight = A4
     c.setAuthor("Ambassadors VFX")
-    c.setTitle(inFileName)
+    c.setTitle(inFileBase)
     # End canvas parameters.
 
     # Set File Info
@@ -225,8 +251,8 @@ def pdfmaker(probe_data, loudness):
     fileSampleRate = str(fileinfo["SampleRate"])
     fileLoudness = str(loudness[0])
     fileR128 = str(loudness[1])
-    if float(loudness[0]) < -50:
-        fileAChannels = "Mute" 
+    if float(loudness[0]) < -80:
+        fileAChannels = "Mute"
     fileDate = str(fileinfo["Date"])
 
     # Draw a colored box to set background color.
@@ -254,10 +280,10 @@ def pdfmaker(probe_data, loudness):
     c.setFont("GothamMed", 10)
     c.drawString(x+10, y_fileDetails-20, "File Name:")
     c.drawString(x+130, y_fileDetails-20, "{val}".format(
-                 val=inFileName[:-6]))
+                 val=inFileName))
     c.drawString(x+10, y_fileDetails-33, "Master Number:")
     c.drawString(x+130, y_fileDetails-33, "{val}".format(
-                val=inFileName[-5:]))
+                val=inFileMasterNr))
     c.drawString(x+10, y_fileDetails-46, "Date Created:")
     c.drawString(x+130, y_fileDetails-46, "{val} UTC".format(
                  val=fileDate))
@@ -337,8 +363,16 @@ def pdfmaker(probe_data, loudness):
     # End audio details.
 
     # Footer.
-    c.setFont("GothamMed", 6)
-    footerString = "Ambassadors B.V. - https://www.ambassadors.com/ - AMS +31 20 435 7171 - NYC +1 347 308 5857"
+    c.setFont("GothamMed", 7)
+    footerName = "Ambassadors B.V."
+    footerWeb = "https://www.ambassadors.com/"
+    footerPhone = ["AMS +31 20 435 7171", "NYC +1 347 308 5857"]
+    footerString = "{name} - {web} - {phoneams} - {phonenyc}".format(
+                    name=footerName,
+                    web=footerWeb,
+                    phoneams=footerPhone[0],
+                    phonenyc=footerPhone[1]
+                    )
     c.drawCentredString(cWidth/2, y-780, footerString)
     # End footer.
 
