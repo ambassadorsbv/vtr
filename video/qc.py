@@ -180,7 +180,7 @@ def loudness(inFile, probe_data):
             print("Reading input file loudness...")
             process = sp.run(ff_command, capture_output=True)
             r128_data = json.loads(process.stdout)
-            for frame in r128_data['frames']:
+            for frame in r128_data["frames"]:
                 tags = frame["tags"]
                 if tags:
                     loudness = tags.get("lavfi.r128.I")
