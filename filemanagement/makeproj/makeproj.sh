@@ -109,7 +109,8 @@ if [[ $PWD == "$projectpath" ]]; then
 
   mkdir -p "$projectpath"/vfx/{_exchange,Houdini,PFTrack,_RENDERS/{cg,comp,aefx},_plates,_reference,aefx,illustrator,inDesign,mari,maya,nuke,photoshop,realflow,shotgun,zbrush}
 
-    permissionsdir=/HEIMDALL/LIBRARY/studio/makeproj/
+  # We try to read the permission files from the Heimdall library first, as that is the most likely to be up-to-date (being a git repo). Else, fall back to the local folder.
+    permissionsdir=/HEIMDALL/LIBRARY/studio/scripts/vtr/filemanagement/makeproj/
   if [[ ! -d $permissionsdir ]]; then
     permissionsdir=/home/admin/Documents/makeproj/
     # this home folder is located on the Archiware / p5 server!
