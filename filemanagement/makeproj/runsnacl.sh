@@ -11,7 +11,7 @@ runsnacl() { # User the permissions lists to set the right permissions for folde
              /usr/local/bin/snacl -E "$projectpath" < "$permissionsdir"/toplevel_permissions.snacl # sets toplevel permissions for the Project
 }
 
-permissionsdir=/HEIMDALL/LIBRARY/studio/makeproj/
+permissionsdir=/HEIMDALL/LIBRARY/studio/scripts/vtr/filemanagement/makeproj/
 
 if [[ ! -d $permissionsdir ]]; then
   permissionsdir=/home/admin/Documents/makeproj/
