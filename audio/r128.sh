@@ -4,7 +4,7 @@ IFS=$'\n'
 if [[ -f $1 ]]; then
   flist="$1";
 elif [[ -d $1 ]]; then
-  flist=$(find $1 -type f -not -iname ".*" -and -iname "*.mov" -or -iname "*.wav" -or -iname "*.aif*" -or -iname "*.mp4" -or -iname "*.mxf" -or -iname "*.webm" -or -iname "*.wmv" -or -iname "*.mkv" -or -iname "*.avi" -or -iname "*.flv")
+  flist=$(find -E "$1" -type f ! -iname ".*" -regex '.*\.(mov|mp4|mxf|mkv|avi|wmv|webm|flv|mp3|wav|aif?)')
 fi
 
 for f in $flist ; do
