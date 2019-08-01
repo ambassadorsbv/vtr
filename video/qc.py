@@ -5,6 +5,7 @@ import subprocess as sp
 import json
 import os
 import time
+import re
 
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
@@ -41,19 +42,22 @@ inFileBase = os.path.splitext(os.path.basename(inFile))[0]
 def filenamecheck(inFileBase):
     """Check if the file naming convention is one of Booking's, or one of Ambassadors'."""
     inFileSplit = inFileBase.split('_')
+    inFileMasterNr = ""
     if inFileSplit[0] == "BDC":
         inFileName = '_'.join(inFileSplit[0:8])
         inFileMasterNr = inFileSplit[9]
     else:
-        inFileName = inFileBase[:-6]
-        inFileMasterNr = inFileBase[-5:]
-        print(inFileName, inFileMasterNr)
+        inFileName = inFileBase
+        while inFileMasterNr == "":
+            try:
+                inFileMasterNr = re.findall(r'\d{5}', inFileName)[0]
+            except IndexError:
+                inFileMasterNr = "N/A"
     return inFileName, inFileMasterNr
 
 
 inFileName = filenamecheck(inFileBase)[0]
 inFileMasterNr = filenamecheck(inFileBase)[1]
-
 
 outThumb = os.path.join(
               "{inDir}/{inFileBase}_thumb.png".format(
@@ -112,6 +116,10 @@ def vidlen(probe_data):
 
 def fileinfo(probe_data):
     """Read the json log and output file information."""
+    achannels = "N/A"
+    acodec = "N/A"
+    acodec_long = "N/A"
+    samplerate = "N/A"
     for stream in probe_data["streams"]:
         streamcheck = stream.get("codec_type")
         if streamcheck == "video":
@@ -122,7 +130,7 @@ def fileinfo(probe_data):
             fps = stream.get("r_frame_rate")
             vcodec = stream.get("codec_name")
             vcodec_long = stream.get("codec_long_name")
-            vcodec_tag = stream.get("tags")["encoder"]
+#            vcodec_tag = stream.get("tags")["encoder"]
             duration = float(stream.get("duration"))
             duration = "{0:.2f}".format(duration)
             bitrate = stream.get("bit_rate")
@@ -132,11 +140,6 @@ def fileinfo(probe_data):
             acodec = stream.get("codec_name")
             acodec_long = stream.get("codec_long_name")
             samplerate = stream.get("sample_rate")
-        else:
-            achannels = stream.get("N/A")
-            acodec = stream.get("N/A")
-            acodec_long = stream.get("N/A")
-            samplerate = stream.get("N/A")
     fileSize = (os.path.getsize(inFile) / 1048576)
     fileSize = "{0:.2f}".format(fileSize)
     date = time.gmtime(os.path.getctime(inFile))
@@ -151,15 +154,16 @@ def fileinfo(probe_data):
                     "FPS": fps,
                     "VideoCodec": vcodec,
                     "VideoCodecLong": vcodec_long,
-                    "VideoCodecTag": vcodec_tag,
                     "Duration": duration,
                     "Bitrate": bitrate,
                     "Colorspace": colorspace,
+                    "Date": date,
                     "AudioCodec": acodec,
                     "AudioCodecLong": acodec_long,
                     "AudioChannels": achannels,
-                    "SampleRate": samplerate,
-                    "Date": date}
+                    "SampleRate": samplerate
+                    }
+#                    "VideoCodecTag": vcodec_tag,
     return fileinfo_out
 # End fileinfo.
 
@@ -181,9 +185,10 @@ def loudness(inFile, probe_data):
             process = sp.run(ff_command, capture_output=True)
             r128_data = json.loads(process.stdout)
             for frame in r128_data["frames"]:
-                tags = frame["tags"]
-                if tags:
-                    loudness = tags.get("lavfi.r128.I")
+                if frame.get("tags"):
+                    tags = frame["tags"]
+                    if tags:
+                        loudness = tags.get("lavfi.r128.I")
             print("Loudness check complete.")
             if -23.5 < float(loudness) < -22.5:
                 R128check = "Yes"
@@ -244,7 +249,7 @@ def pdfmaker(probe_data, loudness):
     fileOrder = str(fileinfo["Order"])
     fileFPS = str(fileinfo["FPS"])
     fileVCodec = str(fileinfo["VideoCodec"])
-    fileVCodecLong = str(fileinfo["VideoCodecTag"])
+    fileVCodecLong = str(fileinfo["VideoCodecLong"])
     fileACodec = str(fileinfo["AudioCodec"])
     fileACodecLong = str(fileinfo["AudioCodecLong"])
     fileAChannels = str(fileinfo["AudioChannels"])
@@ -264,9 +269,9 @@ def pdfmaker(probe_data, loudness):
 
     # Import the logo image.
     c.drawImage("{}/qc/assets/amb_logo.png".format(__location__),
-                30, cHeight-100,
-                width=cWidth/2,
-                height=(cWidth/2)/4,
+                30, cHeight-120,
+                width=(cWidth/2)+50,
+                height=((cWidth/2)+50)/4,
                 mask='auto'
     )
     # End logo image.
