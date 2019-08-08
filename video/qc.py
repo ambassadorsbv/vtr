@@ -205,11 +205,10 @@ def loudness(inFile, probe_data):
 
 def thumbmaker(inFile, inFile_dur):
     """Create the thumbnail output."""
-    thumb_ss = float(inFile_dur) * 0.1
+    thumb_ss = int(float(inFile_dur)) * 0.1
     if int(thumb_ss) == 0:
     	thumb_ss = 1
     thumb_tc = int(float(inFile_dur) * 0.5 - thumb_ss)
-    print(thumb_ss, thumb_tc)
     ff_opts = "select=not(mod(t\\,{timebase})),scale=-2:180,tile=3x1".format(
         timebase=thumb_tc
     )
@@ -225,16 +224,19 @@ def thumbmaker(inFile, inFile_dur):
     sp.run(ff_thumb)
     if os.path.isfile(outThumb):
 	    print("Thumbnail created.")
-    ff_thumbProbe = [
-        '/usr/bin/env', 'ffprobe', outThumb,
-        '-show_streams', '-of', 'json', '-v', 'quiet'
-    ]
-    process = sp.run(ff_thumbProbe, capture_output=True)
-    thumbProbe_data = json.loads(process.stdout)
-    for stream in thumbProbe_data["streams"]:
-        thumbWidth = stream.get("width")
-        thumbHeight = stream.get("height")
-    return thumbWidth, thumbHeight
+	    ff_thumbProbe = [
+	        '/usr/bin/env', 'ffprobe', outThumb,
+	        '-show_streams', '-of', 'json', '-v', 'quiet'
+	    ]
+	    process = sp.run(ff_thumbProbe, capture_output=True)
+	    thumbProbe_data = json.loads(process.stdout)
+	    for stream in thumbProbe_data["streams"]:
+	        thumbWidth = stream.get("width")
+	        thumbHeight = stream.get("height")
+	    return thumbWidth, thumbHeight
+    else:
+    	print("Error. Could not create thumbnail file.")
+    	exit(1)
 # End thumbmaker.
 
 
