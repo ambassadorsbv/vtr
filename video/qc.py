@@ -55,7 +55,8 @@ def filenamecheck(inFileBase):
         inFileName = inFileBase
         while inFileMasterNr == "":
             try:
-                inFileMasterNr = re.findall(r'\d{5}', inFileName)[0]
+                inFileMasterNrFound = re.findall(r'_\d{5}(?:[_.])', inFile)[0]
+                inFileMasterNr = re.findall(r'\d{5}', inFileMasterNrFound)[0]
             except IndexError:
                 inFileMasterNr = "N/A"
     return inFileName, inFileMasterNr
@@ -137,7 +138,7 @@ def fileinfo(probe_data):
             try:
                 vcodec_tag = stream.get("tags")["encoder"]
             except KeyError:
-                vcodec_tag = vcodec_long
+                vcodec_tag = stream.get("codec_long_name")
             duration = float(stream.get("duration"))
             duration = "{0:.2f}".format(duration)
             bitrate = stream.get("bit_rate")
@@ -160,7 +161,7 @@ def fileinfo(probe_data):
                     "Order": order,
                     "FPS": fps,
                     "VideoCodec": vcodec,
-                    "VideoCodecLong": vcodec_long,
+                    "VideoCodecLong": vcodec_tag,
                     "Duration": duration,
                     "Bitrate": bitrate,
                     "Colorspace": colorspace,
@@ -304,13 +305,16 @@ def pdfmaker(probe_data, loudness):
     # End file info.
 
     # Show the thumbnail image.
-    thumbWidth = thumbSizes[0]
-    thumbHeight = thumbSizes[1]
-    y_thumb = y_fileDetails-180
+    thumbWidth = float(cWidth * 0.8)
+    thumbHeight = float(thumbWidth * (thumbSizes[1]/thumbSizes[0]))
+    if thumbHeight > 120:
+        thumbHeight = 120
+        thumbWidth = float((thumbHeight * (thumbSizes[0] / thumbSizes[1])))
+    y_thumb = ((y_fileDetails - 60) - thumbHeight) - 30
     c.drawImage(outThumb,
                 30, y_thumb,
-                width=thumbWidth / 2,
-                height=thumbHeight / 2,
+                width = thumbWidth,
+                height = thumbHeight,
                 mask='auto'
     )
     if os.path.isfile(outThumb):
