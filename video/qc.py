@@ -34,7 +34,12 @@ if len(sys.argv) < 1:
     exit(1)
 
 
-inFile = sys.argv[1]
+inFileRaw = sys.argv[1]
+if not os.path.isfile(inFileRaw):
+    print("File not found. Please specify a valid input file.")
+    exit(1)
+else:
+    inFile = inFileRaw
 inFileDir = os.path.dirname(inFile)
 inFileBase = os.path.splitext(os.path.basename(inFile))[0]
 
@@ -84,8 +89,8 @@ outPDF = os.path.join(
 def probe_infile(inFile):
     """Probe the input file to get the relevant meta data."""
     ff_header = [
-        '/usr/bin/env', 'ffprobe',
-        '-v', 'error',
+        '/usr/bin/env',
+        'ffprobe', '-v', 'error',
         '-hide_banner', '-i',
     ]
     ff_opts = [
@@ -102,7 +107,6 @@ def probe_infile(inFile):
     probe_data = json.loads(process.stdout)
     print("Probe complete.")
     return probe_data
-
 # End probing the input video.
 
 
@@ -130,7 +134,10 @@ def fileinfo(probe_data):
             fps = stream.get("r_frame_rate")
             vcodec = stream.get("codec_name")
             vcodec_long = stream.get("codec_long_name")
-#            vcodec_tag = stream.get("tags")["encoder"]
+            try:
+                vcodec_tag = stream.get("tags")["encoder"]
+            except KeyError:
+                vcodec_tag = vcodec_long
             duration = float(stream.get("duration"))
             duration = "{0:.2f}".format(duration)
             bitrate = stream.get("bit_rate")
@@ -163,7 +170,6 @@ def fileinfo(probe_data):
                     "AudioChannels": achannels,
                     "SampleRate": samplerate
                     }
-#                    "VideoCodecTag": vcodec_tag,
     return fileinfo_out
 # End fileinfo.
 
