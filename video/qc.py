@@ -133,6 +133,10 @@ def fileinfo(probe_data):
             height = stream.get("height")
             ratio = stream.get("display_aspect_ratio")
             order = stream.get("field_order")
+            if order in "tb" or "tt":
+                order = "top field first"
+            elif order in "bb" or "bt":
+                order = "bottom field first"
             fps = stream.get("r_frame_rate")
             vcodec = stream.get("codec_name")
             vcodec_long = stream.get("codec_long_name")
