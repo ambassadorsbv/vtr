@@ -24,7 +24,8 @@ GOTHAM_FONTS = ["{base}/{book}".format(base=__location__,
                                        bold='qc/fonts/Gotham-Bold.ttf'),
                 "{base}/{med}".format(base=__location__,
                                       med='qc/fonts/Gotham-Medium.ttf'),
-]
+                ]
+
 pdfmetrics.registerFont(TTFont('GothamBook', GOTHAM_FONTS[0]))
 pdfmetrics.registerFont(TTFont('GothamBold', GOTHAM_FONTS[1]))
 pdfmetrics.registerFont(TTFont('GothamMed', GOTHAM_FONTS[2]))
@@ -138,7 +139,7 @@ def fileinfo(probe_data):
             try:
                 vcodec_tag = stream.get("tags")["encoder"]
             except KeyError:
-                vcodec_tag = stream.get("codec_long_name")
+                vcodec_tag = vcodec_long
             duration = float(stream.get("duration"))
             duration = "{0:.2f}".format(duration)
             bitrate = stream.get("bit_rate")
@@ -187,7 +188,7 @@ def loudness(inFile, probe_data):
             ff_command = ["/usr/bin/env", "ffprobe",
                           "-f", "lavfi", ff_opts,
                           "-show_frames", "-of", "json", "-v", "quiet"
-            ]
+                          ]
             print("Reading input file loudness...")
             process = sp.run(ff_command, capture_output=True)
             r128_data = json.loads(process.stdout)
@@ -207,7 +208,7 @@ def thumbmaker(inFile, inFile_dur):
     """Create the thumbnail output."""
     thumb_ss = int(float(inFile_dur)) * 0.1
     if int(thumb_ss) == 0:
-    	thumb_ss = 1
+        thumb_ss = 1
     thumb_tc = int(float(inFile_dur) * 0.5 - thumb_ss)
     ff_opts = "select=not(mod(t\\,{timebase})),scale=-2:180,tile=3x1".format(
         timebase=thumb_tc
@@ -223,20 +224,20 @@ def thumbmaker(inFile, inFile_dur):
     print("Creating thumbnail file...")
     sp.run(ff_thumb)
     if os.path.isfile(outThumb):
-	    print("Thumbnail created.")
-	    ff_thumbProbe = [
-	        '/usr/bin/env', 'ffprobe', outThumb,
-	        '-show_streams', '-of', 'json', '-v', 'quiet'
-	    ]
-	    process = sp.run(ff_thumbProbe, capture_output=True)
-	    thumbProbe_data = json.loads(process.stdout)
-	    for stream in thumbProbe_data["streams"]:
-	        thumbWidth = stream.get("width")
-	        thumbHeight = stream.get("height")
-	    return thumbWidth, thumbHeight
+        print("Thumbnail created.")
+        ff_thumbProbe = [
+            '/usr/bin/env', 'ffprobe', outThumb,
+            '-show_streams', '-of', 'json', '-v', 'quiet'
+        ]
+        process = sp.run(ff_thumbProbe, capture_output=True)
+        thumbProbe_data = json.loads(process.stdout)
+        for stream in thumbProbe_data["streams"]:
+            thumbWidth = stream.get("width")
+            thumbHeight = stream.get("height")
+        return thumbWidth, thumbHeight
     else:
-    	print("Error. Could not create thumbnail file.")
-    	exit(1)
+        print("Error. Could not create thumbnail file.")
+        exit(1)
 # End thumbmaker.
 
 
@@ -258,12 +259,12 @@ def pdfmaker(probe_data, loudness):
     fileRatio = str(fileinfo["Ratio"])
     fileDur = str(fileinfo["Duration"])
     fileBitrate = str(fileinfo["Bitrate"])
-    fileColor = str(fileinfo["Colorspace"])
+#    fileColor = str(fileinfo["Colorspace"])
     fileOrder = str(fileinfo["Order"])
     fileFPS = str(fileinfo["FPS"])
-    fileVCodec = str(fileinfo["VideoCodec"])
+#    fileVCodec = str(fileinfo["VideoCodec"])
     fileVCodecLong = str(fileinfo["VideoCodecLong"])
-    fileACodec = str(fileinfo["AudioCodec"])
+#    fileACodec = str(fileinfo["AudioCodec"])
     fileACodecLong = str(fileinfo["AudioCodecLong"])
     fileAChannels = str(fileinfo["AudioChannels"])
     fileSampleRate = str(fileinfo["SampleRate"])
@@ -286,7 +287,7 @@ def pdfmaker(probe_data, loudness):
                 width=(cWidth/2)+50,
                 height=((cWidth/2)+50)/4,
                 mask='auto'
-    )
+                )
     # End logo image.
 
     # Print the file info.
@@ -319,10 +320,10 @@ def pdfmaker(probe_data, loudness):
     y_thumb = ((y_fileDetails - 60) - thumbHeight) - 30
     c.drawImage(outThumb,
                 30, y_thumb,
-                width = thumbWidth,
-                height = thumbHeight,
+                width=thumbWidth,
+                height=thumbHeight,
                 mask='auto'
-    )
+                )
     if os.path.isfile(outThumb):
         os.remove(outThumb)
     # End thumbnail image.
