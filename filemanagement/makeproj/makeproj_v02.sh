@@ -77,11 +77,11 @@ makeproj() {
   # is this a philips or a booking project? If so, we set a flag and strip the client name from the project.
   philipscheck=$(echo "$projectname" | grep PHILIPS)
   bookingcheck=$(echo "$projectname" | grep BOOKING)
-  if [[ -z $philipscheck ]]; then
+  if [[ -n $philipscheck ]]; then
     isphilips="1"
     projectname="${projectname/PHILIPS_/}"
   fi
-  if [[ -z $bookingcheck ]]; then
+  if [[ -n $bookingcheck ]]; then
     isbooking="1"
     projectname="${projectname/BOOKING_/}"
   fi
