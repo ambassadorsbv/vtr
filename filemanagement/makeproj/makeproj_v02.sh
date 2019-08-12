@@ -3,24 +3,24 @@ today=$(date +%Y%m%d)
 SCRIPTFOLDER=/HEIMDALL/LIBRARY/studio/scripts/vtr/filemanagement/makeproj
 
 makefolders() {
+  # this function creates the actual folders. The subfolders are split up per tree, to make it easier to adjust a single sub folder tructure.
   mkdir -p "$projectpath"/01_share/
-  mkdir -p "$projectpath"/01_share/{interal,external}
 
-  mkdir -p "$projectpath"/01_share/internal/{cube,edl,art,sound}
-  mkdir -p "$projectpath"/01_share/internal/cube/
-  mkdir -p "$projectpath"/01_share/internal/edl/
-  mkdir -p "$projectpath"/01_share/internal/art/{screengrabs,titles}
-  mkdir -p "$projectpath"/01_share/internal/sound/{wip,omf}
+  mkdir -p "$projectpath"/01_share/to_client/{cube,edl,art,sound}
+  mkdir -p "$projectpath"/01_share/to_client/cube/
+  mkdir -p "$projectpath"/01_share/to_client/edl/
+  mkdir -p "$projectpath"/01_share/to_client/art/{screengrabs,titles}
+  mkdir -p "$projectpath"/01_share/to_client/sound/{wip,omf}
 
-  mkdir -p "$projectpath"/01_share/external/{edl,art,mov,docs}
-  mkdir -p "$projectpath"/01_share/external/art/{logo,titles,fonts}
-  mkdir -p "$projectpath"/01_share/external/edl/{sound,video}
-  mkdir -p "$projectpath"/01_share/external/mov/{ref,master,compshots,graded}
-  mkdir -p "$projectpath"/01_share/external/docs/{deliveryspecs,subs,copy,camerareports}
+  mkdir -p "$projectpath"/01_share/from_client/{edl,art,mov,docs}
+  mkdir -p "$projectpath"/01_share/from_client/art/{logo,titles,fonts}
+  mkdir -p "$projectpath"/01_share/from_client/edl/{sound,video}
+  mkdir -p "$projectpath"/01_share/from_client/mov/{ref,master,compshots,graded}
+  mkdir -p "$projectpath"/01_share/from_client/docs/{deliveryspecs,subs,copy,camerareports}
 
   mkdir -p "$projectpath"/02_work
-  mkdir -p "$projectpath"/02_work/{aefx,maya,nuke,premiere,photoshop,shotgun,pr,renders}
-  mkdir -p "$projectpath"/02_work/renders/{maya,nuke,baselight,premiere,plates,tracking,dailies/$today,reference}
+  mkdir -p "$projectpath"/02_work/{aefx,maya,nuke,premiere,photoshop,shotgun,pr,renders,plates,tracking}
+  mkdir -p "$projectpath"/02_work/renders/{cg,comp,grade,edit,dailies/$today,reference}
 
   mkdir -p "$projectpath"/03_final
   mkdir -p "$projectpath"/03_final/video/{masters,relay}
@@ -31,8 +31,8 @@ makefolders() {
 }
 
 makephilips() {
-  mkdir -p "$projectpath"/01_share/external/art/{CAD,PGD,MUS}
-  mkdir -p "$projectpath"/01_share/external/docs/{briefs,feedback,asset_matrix}
+  mkdir -p "$projectpath"/01_share/from_client/art/{CAD,PGD,MUS}
+  mkdir -p "$projectpath"/01_share/from_client/docs/{briefs,feedback,asset_matrix}
 }
 
 runsnacl() {
