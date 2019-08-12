@@ -133,9 +133,9 @@ def fileinfo(probe_data):
             height = stream.get("height")
             ratio = stream.get("display_aspect_ratio")
             order = stream.get("field_order")
-            if order in "tb" or "tt":
+            if str(order) in ["tb", "tt"]:
                 order = "top field first"
-            elif order in "bb" or "bt":
+            if str(order) in ["bb", "bt"]:
                 order = "bottom field first"
             fps = stream.get("r_frame_rate")
             vcodec = stream.get("codec_name")
@@ -210,22 +210,27 @@ def loudness(inFile, probe_data):
 
 def thumbmaker(inFile, inFile_dur):
     """Create the thumbnail output."""
-    thumb_ss = int(float(inFile_dur)) * 0.1
+    thumb_ss = (float(inFile_dur)) * 0.1
+    if not (thumb_ss * 2) % 2 == 0:
+        thumb_ss = thumb_ss + 0.1
     if int(thumb_ss) == 0:
         thumb_ss = 1
+    thumb_ss = int(thumb_ss)
     thumb_tc = int(float(inFile_dur) * 0.5 - thumb_ss)
     ff_opts = "select=not(mod(t\\,{timebase})),scale=-2:180,tile=3x1".format(
         timebase=thumb_tc
     )
     ff_thumb = [
-        '/usr/bin/env', 'ffmpeg', '-ss', str(thumb_ss),
-        '-hide_banner', '-loglevel', 'error',
+        '/usr/bin/env', 'ffmpeg',
+        '-ss', str(thumb_ss),
+        '-hide_banner', '-loglevel', 'warning',
         '-y', '-i', inFile,
         '-frames', '1', '-vsync', '0',
         '-vf', ff_opts,
         outThumb
     ]
     print("Creating thumbnail file...")
+#    print(ff_thumb)
     sp.run(ff_thumb)
     if os.path.isfile(outThumb):
         print("Thumbnail created.")
