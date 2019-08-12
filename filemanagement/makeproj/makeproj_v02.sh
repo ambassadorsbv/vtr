@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 today=$(date +%Y%m%d)
+SCRIPTFOLDER=/HEIMDALL/LIBRARY/studio/scripts/vtr/filemanagement/makeproj
 
 makefolders() {
   mkdir -p "$projectpath"/01_share/
@@ -149,16 +150,16 @@ makeproj() {
 
   # next, we set the right folder permissions.
   # we try to read the permission files from the Heimdall library first, as that is the most likely to be up-to-date (being a git repo). Else, fall back to the local folder.
-  permissionsdir=/HEIMDALL/LIBRARY/studio/scripts/vtr/filemanagement/makeproj/
+  permissionsdir="$SCRIPTFOLDER"/permissions/
   if [[ ! -d $permissionsdir ]]; then
-    permissionsdir=/home/admin/Documents/makeproj/
+    permissionsdir=/home/admin/Documents/makeproj/permissions/
     # this home folder is located on the Archiware / p5 server!
   fi
 
 #    runsnacl
 
   echo "Project created on" "$today" "as" "$projectname""_""$projectnumber"
-  echo "Project created on" "$today" "as" "$projectname""_""$projectnumber" >> /HEIMDALL/LIBRARY/studio/makeproj/project_history.log
+  echo "Project created on" "$today" "as" "$projectname""_""$projectnumber" >> "$SCRIPTFOLDER"/project_history.log
 }
 
 ## THIS IS WHERE WE START CREATING A PROJECT.
