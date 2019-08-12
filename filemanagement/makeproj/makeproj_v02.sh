@@ -12,9 +12,9 @@ makefolders() {
   mkdir -p "$projectpath"/01_share/to_client/art/{screengrabs,titles}
   mkdir -p "$projectpath"/01_share/to_client/sound/{wip,omf}
 
-  mkdir -p "$projectpath"/01_share/from_client/{edl,art,mov,docs}
+  mkdir -p "$projectpath"/01_share/from_client/{edl,art,mov,docs,sound}
   mkdir -p "$projectpath"/01_share/from_client/art/{logo,titles,fonts}
-  mkdir -p "$projectpath"/01_share/from_client/edl/{sound,video}
+  mkdir -p "$projectpath"/01_share/from_client/sound/{omf,mne,mix}
   mkdir -p "$projectpath"/01_share/from_client/mov/{ref,master,compshots,graded}
   mkdir -p "$projectpath"/01_share/from_client/docs/{deliveryspecs,subs,copy,camerareports}
 
@@ -61,7 +61,7 @@ lencheck() {
   fi
 }
 
-makeproj() {
+getinfo() {
 
   # you can input the project name directly into this function. If you don't, it'll ask for the project details.
   if [[ $1 ]] && [[ $2 ]]; then
@@ -122,7 +122,10 @@ makeproj() {
   else
     projectpath="/HEIMDALL/PROJECTS/$projectyear/$projectfolder"
   fi
+}
 
+
+makeproj() {
   # if the year folder does not exist, we'll need a higherup (VTR or IT) to create it before creating the project folder.
   # if it does exist, we can create the main project folder.
   if [[ ! -d /HEIMDALL/PROJECTS/$projectyear/ ]]; then
@@ -170,9 +173,10 @@ if [[ -z $1 ]]; then
   echo "Would you like to create a project, or reset a projects' permissions and rights?"
   select projsnacl in "Project" "Rights"; do
     case $projsnacl in
-      Project ) makeproj
+      Project ) getinfo;
+                makeproj;
                 break;;
-      Rights ) inputs;
+      Rights ) getinfo;
                runsnacl;
                break;;
     esac
