@@ -79,11 +79,11 @@ getinfo() {
   bookingcheck=$(echo "$projectname" | grep BOOKING)
   if [[ -n $philipscheck ]]; then
     isphilips="1"
-    projectname="${projectname/PHILIPS_/}"
+    projectname="${projectname/PHILIPS-/}"
   fi
   if [[ -n $bookingcheck ]]; then
     isbooking="1"
-    projectname="${projectname/BOOKING_/}"
+    projectname="${projectname/BOOKING-/}"
   fi
 
   # strip the p from the second input in case someone gave a p with the projectnumber.
