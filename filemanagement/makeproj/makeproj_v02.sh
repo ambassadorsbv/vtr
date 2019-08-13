@@ -19,7 +19,7 @@ makefolders() {
   mkdir -p "$projectpath"/01_share/from_client/docs/{deliveryspecs,subs,copy,camerareports}
 
   mkdir -p "$projectpath"/02_work
-  mkdir -p "$projectpath"/02_work/{aefx,maya,nuke,premiere,photoshop,shotgun,pr,renders,plates,tracking}
+  mkdir -p "$projectpath"/02_work/{aefx,maya,nuke,premiere,photoshop,shotgun,pr,renders,plates,tracking,sound}
   mkdir -p "$projectpath"/02_work/renders/{cg,comp,grade,edit,dailies/$today,reference}
 
   mkdir -p "$projectpath"/03_final
@@ -38,10 +38,10 @@ makephilips() {
 runsnacl() {
   # User the permissions lists to set the right permissions for folders, using the SN-ACL program. This was copied over from the server itself, and is a proprietary software! If it ever gets lost on this machine, make sure to copy it over from the server again. (Should be in /bin/snacl)
   /usr/local/bin/snacl -ER "$projectpath"/* < "$permissionsdir"/subfolder_permissions.snacl # sets permissions for subfolders inside a project's division folders
-  /usr/local/bin/snacl -ER "$projectpath"/**/*.* < "$permissionsdir"/file_permissions.snacl # sets permissions for subfolders inside a project's division folders
-  /usr/local/bin/snacl -ER "$projectpath"/vfx/* < "$permissionsdir"/producer_permissions.snacl # removes write permissions for Producers in VFX folders
-  /usr/local/bin/snacl -E "$projectpath"/* < "$permissionsdir"/folder_permissions.snacl # sets division folders permissions in the Project
-  /usr/local/bin/snacl -E "$projectpath" < "$permissionsdir"/toplevel_permissions.snacl # sets toplevel permissions for the Project
+  # /usr/local/bin/snacl -ER "$projectpath"/**/*.* < "$permissionsdir"/file_permissions.snacl # sets permissions for subfolders inside a project's division folders
+  # /usr/local/bin/snacl -ER "$projectpath"/vfx/* < "$permissionsdir"/producer_permissions.snacl # removes write permissions for Producers in VFX folders
+  # /usr/local/bin/snacl -E "$projectpath"/* < "$permissionsdir"/folder_permissions.snacl # sets division folders permissions in the Project
+  # /usr/local/bin/snacl -E "$projectpath" < "$permissionsdir"/toplevel_permissions.snacl # sets toplevel permissions for the Project
 }
 
 inputs() {
@@ -159,7 +159,7 @@ makeproj() {
     # this home folder is located on the Archiware / p5 server!
   fi
 
-#    runsnacl
+   runsnacl
 
   echo "Project created on" "$today" "as" "$projectname""_""$projectnumber"
   echo "Project created on" "$today" "as" "$projectname""_""$projectnumber" >> "$SCRIPTFOLDER"/project_history.log
