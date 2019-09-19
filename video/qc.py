@@ -154,6 +154,12 @@ def fileinfo(probe_data):
             acodec = stream.get("codec_name")
             acodec_long = stream.get("codec_long_name")
             samplerate = stream.get("sample_rate")
+        else:
+            achannels = "null"
+            alayout = "null"
+            acodec = "null"
+            acodec_long = "null"
+            samplerate = "null"
     fileSize = (os.path.getsize(inFile) / 1048576)
     fileSize = "{0:.2f}".format(fileSize)
     date = time.gmtime(os.path.getctime(inFile))
