@@ -19,8 +19,8 @@ makefolders() {
   mkdir -p "$projectpath"/01_share/from_client/docs/{deliveryspecs,subs,copy,camerareports}
 
   mkdir -p "$projectpath"/02_work
-  mkdir -p "$projectpath"/02_work/{aefx,maya,nuke,premiere,photoshop,shotgun,pr,renders,plates,tracking,sound}
-  mkdir -p "$projectpath"/02_work/renders/{cg,comp,grade,edit,dailies/$today,reference}
+  mkdir -p "$projectpath"/02_work/{aefx,maya,nuke,premiere,photoshop,shotgun,pr,renders,plates,tracking,sound,dailies/$today}
+  mkdir -p "$projectpath"/02_work/renders/{cg,comp,grade,edit,reference}
 
   mkdir -p "$projectpath"/03_final
   mkdir -p "$projectpath"/03_final/video/{masters,relay}
