@@ -46,7 +46,7 @@ inFileBase = os.path.splitext(os.path.basename(inFile))[0]
 
 
 def filenamecheck(inFileBase):
-    """Check if the file naming convention is one of Booking's, or one of Ambassadors'."""
+    """Check if the file naming convention is Booking's or Ambassadors'."""
     inFileSplit = inFileBase.split('_')
     inFileMasterNr = ""
     if inFileSplit[0] == "BDC":
@@ -150,9 +150,16 @@ def fileinfo(probe_data):
             colorspace = stream.get("color_space")
         if streamcheck == "audio":
             achannels = stream.get("channels")
+            alayout = stream.get("channel_layout")
             acodec = stream.get("codec_name")
             acodec_long = stream.get("codec_long_name")
             samplerate = stream.get("sample_rate")
+        else:
+            achannels = "null"
+            alayout = "null"
+            acodec = "null"
+            acodec_long = "null"
+            samplerate = "null"
     fileSize = (os.path.getsize(inFile) / 1048576)
     fileSize = "{0:.2f}".format(fileSize)
     date = time.gmtime(os.path.getctime(inFile))
@@ -174,6 +181,7 @@ def fileinfo(probe_data):
                     "AudioCodec": acodec,
                     "AudioCodecLong": acodec_long,
                     "AudioChannels": achannels,
+                    "AudioLayout": alayout,
                     "SampleRate": samplerate
                     }
     return fileinfo_out
@@ -184,27 +192,42 @@ def loudness(inFile, probe_data):
     """Probe the input file and read the audio stream loudness."""
     loudness = "-999"
     R128check = "No"
+    astream_amount = 0
     for stream in probe_data["streams"]:
         if stream.get("codec_type") == "audio":
-            ff_opts = "amovie='{inFile}',ebur128=metadata=1".format(
-                inFile=inFile
+            astream_amount += 1
+    if astream_amount > 0:
+        strm_fcx = "[0:a]join=inputs={amount}:channel_layout=stereo[a]".format(
+            amount=astream_amount
             )
-            ff_command = ["/usr/bin/env", "ffprobe",
-                          "-f", "lavfi", ff_opts,
-                          "-show_frames", "-of", "json", "-v", "quiet"
-                          ]
-            print("Reading input file loudness...")
-            process = sp.run(ff_command, capture_output=True)
-            r128_data = json.loads(process.stdout)
-            for frame in r128_data["frames"]:
-                if frame.get("tags"):
-                    tags = frame["tags"]
-                    if tags:
-                        loudness = tags.get("lavfi.r128.I")
-            print("Loudness check complete.")
-            if -23.5 < float(loudness) < -22.5:
-                R128check = "Yes"
-    return loudness, R128check
+        audio_mux = ["/usr/bin/env", "ffmpeg",
+                     "-y", "-i", inFile,
+                     "-filter_complex", strm_fcx,
+                     "-map", "[a]", "-v", "quiet",
+                     "/tmp/muxtmp.wav"
+                     ]
+        sp.run(audio_mux)
+
+        ff_opts = "amovie='{inMuxed}',ebur128=metadata=1".format(
+            inMuxed="/tmp/muxtmp.wav"
+        )
+        ff_command = ["/usr/bin/env", "ffprobe",
+                      "-f", "lavfi", ff_opts,
+                      "-show_frames", "-of", "json", "-v", "quiet"
+                      ]
+        print("Reading input file loudness...")
+        process = sp.run(ff_command, capture_output=True)
+        r128_data = json.loads(process.stdout)
+        for frame in r128_data["frames"]:
+            if frame.get("tags"):
+                tags = frame["tags"]
+                if tags:
+                    loudness = tags.get("lavfi.r128.I")
+        print("Loudness check complete.")
+        if -23.5 < float(loudness) < -22.5:
+            R128check = "Yes"
+        os.remove("/tmp/muxtmp.wav")
+    return loudness, R128check, astream_amount
 # End loudness.
 
 
@@ -230,7 +253,6 @@ def thumbmaker(inFile, inFile_dur):
         outThumb
     ]
     print("Creating thumbnail file...")
-#    print(ff_thumb)
     sp.run(ff_thumb)
     if os.path.isfile(outThumb):
         print("Thumbnail created.")
@@ -246,6 +268,8 @@ def thumbmaker(inFile, inFile_dur):
         return thumbWidth, thumbHeight
     else:
         print("Error. Could not create thumbnail file.")
+        print("FFMpeg command used was:")
+        print(ff_thumb)
         exit(1)
 # End thumbmaker.
 
@@ -271,15 +295,16 @@ def pdfmaker(probe_data, loudness):
 #    fileColor = str(fileinfo["Colorspace"])
     fileOrder = str(fileinfo["Order"])
     fileFPS = str(fileinfo["FPS"])
-#    fileVCodec = str(fileinfo["VideoCodec"])
     fileVCodecLong = str(fileinfo["VideoCodecLong"])
-#    fileACodec = str(fileinfo["AudioCodec"])
     fileACodecLong = str(fileinfo["AudioCodecLong"])
-    fileAChannels = str(fileinfo["AudioChannels"])
+    if str(fileinfo["AudioLayout"]) == "stereo":
+        fileAChannels = str(fileinfo["AudioChannels"])
+    else:
+        fileAChannels = str(loudness[2])
     fileSampleRate = str(fileinfo["SampleRate"])
     fileLoudness = str(loudness[0])
     fileR128 = str(loudness[1])
-    if float(loudness[0]) < -80:
+    if float(loudness[0]) < -50:
         fileAChannels = "Mute"
     fileDate = str(fileinfo["Date"])
 
