@@ -18,16 +18,12 @@ makefolders() {
   mkdir -p "$projectpath"/01_share/from_client/mov/{ref,master,compshots,graded}
   mkdir -p "$projectpath"/01_share/from_client/docs/{deliveryspecs,subs,copy,camerareports}
 
-  # exchange added for freelance and internal shares, keeping them projectbased
-  mkdir -p "$projectpath"/01_share/exchange/{internal,external}
-
   mkdir -p "$projectpath"/02_work
   mkdir -p "$projectpath"/02_work/{aefx,compose,maya,nuke,premiere,photoshop,shotgun,pr,renders,reference,plates,tracking,sound,dailies/$today}
-  mkdir -p "$projectpath"/02_work/sound/{01_dnxhd36,02_wip}
   mkdir -p "$projectpath"/02_work/renders/{cg,comp,grade,edit}
 
   mkdir -p "$projectpath"/03_final
-  mkdir -p "$projectpath"/03_final/video
+  mkdir -p "$projectpath"/03_final/video/{masters,relay}
   mkdir -p "$projectpath"/03_final/sound
 
   mkdir -p "$projectpath"/04_archive
@@ -81,7 +77,6 @@ getinfo() {
   # is this a philips or a booking project? If so, we set a flag and strip the client name from the project.
   philipscheck=$(echo "$projectname" | grep PHILIPS)
   bookingcheck=$(echo "$projectname" | grep BOOKING)
-  staatslotcheck=$(echo "$projectname" | grep STAATSLOTERIJ)
   if [[ -n $philipscheck ]]; then
     isphilips="1"
     projectname="${projectname/PHILIPS-/}"
@@ -90,11 +85,6 @@ getinfo() {
     isbooking="1"
     projectname="${projectname/BOOKING-/}"
   fi
-  if [[ -n $staatslotcheck ]]; then
-    isstaatslot="1"
-    projectname="${projectname/STAATSLOTERIJ-/}"
-  fi
-
 
   # strip the p from the second input in case someone gave a p with the projectnumber.
   # then we check if the string contains only numbers, starting with 1 or 2, and is exactly 7 characters long.
@@ -129,8 +119,6 @@ getinfo() {
     projectpath="/HEIMDALL/PROJECTS/philips/$projectfolder"
   elif [[ $isbooking == "1" ]]; then
     projectpath="/HEIMDALL/PROJECTS/booking/$projectfolder"
-  elif [[ $isstaatslot == "1" ]]; then
-    projectpath="/HEIMDALL/PROJECTS/staatsloterij/$projectfolder"
   else
     projectpath="/HEIMDALL/PROJECTS/$projectyear/$projectfolder"
   fi

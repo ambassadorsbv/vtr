@@ -1,0 +1,12 @@
+group:VFX allow modify_access,directory_inherit
+group:Lab allow modify_access,directory_inherit
+group:Production allow modify_access,directory_inherit
+group:Other allow modify_access,directory_inherit
+group:finance allow modify_access,directory_inherit
+group:HR allow modify_access,directory_inherit
+group:Sound allow modify_access,directory_inherit
+group:BV allow modify_access,directory_inherit
+group:Edit allow modify_access,directory_inherit
+group:CG allow modify_access,directory_inherit
+group:Studio allow full_access,directory_inherit
+group:admins allow full_access,directory_inherit

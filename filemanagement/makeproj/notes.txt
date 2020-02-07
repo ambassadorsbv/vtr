@@ -1,0 +1,1 @@
+snacl -ER /HEIMDALL/PROJECTS/watchfolders/H264_for-Cube_approval_8mbps/ < /HEIMDALL/LIBRARY/studio/scripts/vtr/filemanagement/makeproj/watchfolder_permissions.snacl

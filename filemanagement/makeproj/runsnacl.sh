@@ -11,7 +11,7 @@ runsnacl() { # User the permissions lists to set the right permissions for folde
              /usr/local/bin/snacl -E "$projectpath" < "$permissionsdir"/toplevel_permissions.snacl # sets toplevel permissions for the Project
 }
 
-permissionsdir=/HEIMDALL/LIBRARY/studio/scripts/vtr/filemanagement/makeproj/
+permissionsdir=/HEIMDALL/LIBRARY/studio/scripts/vtr/filemanagement/makeproj/test/
 
 if [[ ! -d $permissionsdir ]]; then
   permissionsdir=/home/admin/Documents/makeproj/
@@ -22,7 +22,8 @@ cd $HOME
 
 if [[ -z $1 ]]; then
     echo "First variable not set."
-    echo "Please input project name."
+###ARJAN
+    echo "Please input the folder path."
     read projectname
     projectpath=$(find /HEIMDALL/PROJECTS -type d -iname "*$projectname*")
     echo "project path found at $projectpath"

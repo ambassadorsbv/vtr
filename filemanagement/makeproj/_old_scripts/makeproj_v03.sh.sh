@@ -20,14 +20,14 @@ makefolders() {
 
   # exchange added for freelance and internal shares, keeping them projectbased
   mkdir -p "$projectpath"/01_share/exchange/{internal,external}
-
+  
   mkdir -p "$projectpath"/02_work
   mkdir -p "$projectpath"/02_work/{aefx,compose,maya,nuke,premiere,photoshop,shotgun,pr,renders,reference,plates,tracking,sound,dailies/$today}
   mkdir -p "$projectpath"/02_work/sound/{01_dnxhd36,02_wip}
   mkdir -p "$projectpath"/02_work/renders/{cg,comp,grade,edit}
 
   mkdir -p "$projectpath"/03_final
-  mkdir -p "$projectpath"/03_final/video
+  mkdir -p "$projectpath"/03_final/video/{masters,relay}
   mkdir -p "$projectpath"/03_final/sound
 
   mkdir -p "$projectpath"/04_archive

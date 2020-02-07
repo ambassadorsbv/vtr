@@ -1,0 +1,12 @@
+group:VFX allow modify_access
+group:Lab allow modify_access
+group:Production allow read_access,execute
+group:Other allow read_access,execute
+group:finance allow read_access,execute
+group:HR allow read_access,execute
+group:Sound allow modify_access
+group:BV allow read_access,execute
+group:Edit allow modify_access
+group:VFX allow modify_access
+group:Studio allow full_access
+group:admins allow full_access
